@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Mainframe extends JFrame{
     private Container cp ;
@@ -16,6 +18,10 @@ public class Mainframe extends JFrame{
     private JButton btnLeft = new JButton("←");
     private JButton btnExit = new JButton("Exit");
     private int dirFlag = 4 , objX = 50 , objY = 50 , objW = 40 , objH = 40;
+    private int tarX , tarY , nX , nY ;
+    private float m = 0.0f;
+    private Timer t1 , t2;
+    private Boolean flag = false;
 
     public Mainframe (){
         this.init();
@@ -38,9 +44,10 @@ public class Mainframe extends JFrame{
         jpnS.add(btnLeft);
         jpnS.add(btnExit);
 
-        final Timer t1 = new Timer(80, new ActionListener() {
+        t1 = new Timer(80, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+
                 switch (dirFlag){
                     case 1 :
                         if (objY - 2 > 0 ){
@@ -72,6 +79,44 @@ public class Mainframe extends JFrame{
                         break;
                 }
                 jlb.setLocation(objX,objY);
+            }
+        });
+
+        jlb.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                super.mouseClicked(mouseEvent);
+                flag = true;
+            }
+        });
+
+        jpnC.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                super.mouseClicked(mouseEvent);
+                if (flag){
+                    tarX = mouseEvent.getX(); tarY = mouseEvent.getY();
+                    m = (float) (tarY - jlb.getY()) / (float) (tarX - jlb.getX());
+                    t2.start();
+                    flag = false;
+                }
+            }
+        });
+
+        t2 = new Timer(10, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (Math.abs(jlb.getX() - tarX) < 10 && Math.abs(jlb.getY() - tarY) < 10){
+                    t2.stop();
+                }else {
+                    if (jlb.getX() - tarX < 0){
+                        nX = jlb.getX() +1 ;
+                    }else {
+                        nX = jlb.getX() -1 ;
+                    }
+                }
+                nY = Math.round(m * (float)(nX - tarX) + tarY);
+                jlb.setLocation(nX , nY);
             }
         });
 
